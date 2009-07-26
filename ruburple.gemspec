@@ -1,5 +1,3 @@
-require 'rake'
-
 Gem::Specification.new do |s|
     s.platform  =   Gem::Platform::RUBY
     s.name      =   "ruburple"
@@ -7,7 +5,7 @@ Gem::Specification.new do |s|
     s.author    =   "Martin Kihlgren"
     s.email     =   "zond at troja dot ath dot cx"
     s.summary   =   "An ruby extension to libpurple."
-    s.files     =   FileList['lib/**/*.rb', 'tests/*', 'ext/*', 'LICENSE'].to_a
+    s.files     =   Dir['lib/**/*.rb'] + Dir['tests/*'] + Dir['ext/*'] + ['LICENSE']
     s.require_path  =   "lib"
     s.extensions << 'ext/extconf.rb'
     s.autorequire   =   "ruburple"
