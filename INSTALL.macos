@@ -1,0 +1,109 @@
+Here are some helpful directions for installing on Mac OS X from SVN / or if the gem doesn't build.
+
+###  make sure you have glib2 & pkg-config
+
+if you have fink:
+
+   sudo fink install glib2-dev 
+   sudo fink install pkgconfig
+   
+otherwise, you can follow the directions for glib and pkg-config on this page:
+
+   http://code.google.com/p/macfuse/wiki/HOWTO
+   
+NOTE:  if you install glib through macports, see the note about compiling ruburple below
+
+
+###  download and unpack the latest version of pidgin (which contains libpurple), here:
+
+   http://pidgin.im/download/source/
+   
+or at the shell, something like
+   
+   mkdir -p /src
+   cd /src
+   wget http://downloads.sourceforge.net/pidgin/pidgin-2.3.1.tar.bz2
+   tar xjf pidgin-2.3.1.tar.bz2
+   cd pidgin-2.3.1
+   
+and then build and install libpurple in /usr/local/lib
+
+   ./configure --disable-gtkui --disable-screensaver --disable-consoleui --disable-sm  --disable-perl --disable-tk  --disable-tcl  --disable-gstreamer  --disable-schemas-install --disable-gestures  --disable-cap  --disable-gevolution --disable-gtkspell  --disable-startup-notification
+   cd libpurple
+   make
+   sudo make install
+   
+
+### get the latest ruburple code out of subversion
+
+   cd /src
+   svn checkout http://ruburple.rubyforge.org/svn/trunk/ruburple
+   cd ruburple
+
+### build the C extension part of ruburple
+
+   cd ext
+   ruby extconf.rb
+   make
+   sudo make install
+
+If the above doesn't work for you, there may be several causes:
+
+   (1) if you use an intel mac, and you used a package manager to install glib and/or pkg-config,
+       it's likely you don't have universal binary version of those libraries.  to compile an 
+       intel-only version of ruburple, do:
+   
+         export ARCHFLAGS="-arch i386"
+   
+       and try the above again
+   
+   (2) if you specifically used macports to install glib/pkg-config, you need to tell extconf.rb how 
+       to find the macports versions of those libraries.  do:
+
+			export LDFLAGS="-L/opt/local/lib"
+			
+		 and try again.  You may need to do both of the above.
+
+
+### copy over the ruby part of ruburple
+
+this part depends on whether you have a custom ruby binary installed on your system.  to find out:
+
+   which ruby
+
+you should see either something like "/usr/local/bin/ruby" or "/usr/bin/ruby".  copy ruburple to the matching site_ruby directory, either:
+
+   sudo cp -R lib/ruburple.rb lib/ruburple /usr/local/lib/ruby/site_ruby/1.8/
+
+or, for /usr/bin/ruby
+
+   sudo cp -R lib/ruburple.rb lib/ruburple /usr/lib/ruby/site_ruby/1.8/
+   
+
+### try it out
+
+   irb -rruburple
+
+and then try things like
+
+   Ruburple::init
+   Ruburple::debug = true
+   a = Ruburple::get_protocol("AIM").get_account("your_screenname", "your_password")
+   a.connect
+
+
+### (optional) add support for SSL
+
+the instructions above build a version of libpurple that can't talk to Google Talk and MSN because it doesn't support SSL.  if you want to build an SSL capable version of libpurple, you need to have gnutls
+
+   sudo port install gnutls
+
+and then redo the configure and install of libpurple with some extra config options
+
+   cd /src/pidgin-2.3.1
+   ./configure --disable-gtkui --disable-screensaver --disable-consoleui --disable-sm  --disable-perl --disable-tk  --disable-tcl  --disable-gstreamer  --disable-schemas-install --disable-gestures  --disable-cap  --disable-gevolution --disable-gtkspell  --disable-startup-notification --with-gnutls-includes=/opt/local/include/ --with-gnutls-libs=/opt/local/lib/
+   cd libpurple
+   make
+   sudo make install
+
+ruburple should use the new version of libpurple automatically.

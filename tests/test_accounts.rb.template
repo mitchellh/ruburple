@@ -1,0 +1,8 @@
+
+#
+# These accounts should be on each others buddy lists for the tests to run.
+#
+$TEST_ACCOUNTS = [[
+                   TestAccount.new("XMPP", "some@xmpp.account", "some_xmpp_password"),
+                   TestAccount.new("XMPP", "some@xmpp.account", "some_xmpp_password")
+                  ]]

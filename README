@@ -1,0 +1,55 @@
+= This is Ruburple, a Ruby extension to libpurple (the library formerly known as libgaim).
+
+It consists of a chunky C extension and a small piece of Ruby to wrap some of
+the C calls in a nicer package.
+
+== Dependencies:
+
+libpurple 2.x.x:: Distributed with Pidgin 2.x.x (Ruburple has been verified to work with libpurple 2.0.0 and 2.2.2): http://www.pidgin.im/
+glib-2.0:: Could possibly work with other versions, but right now my extconf.rb only looks for 2.0 (patches welcome): http://www.gtk.org/
+pkg-config:: Just for extconf.rb to be able to find glib-2.0. Should be installed when you install glib, AFAIK.
+
+=== Hints:
+
+I hade some trouble getting a precompiled set of libpurple libs with headers, so I downloaded the source.
+
+Then, to build, I did:
+ env CFLAGS="-I/opt/local/include -L/opt/local/lib" ./configure --disable-gtkui --disable-consoleui --disable-screensaver --disable-startup-notification --disable-sm --disable-gtkspell --disable-gevolution --disable-cap --disable-gstreamer --disable-tcl --disable-tk --disable-doxygen --disable-perl --with-gnutls-includes=/opt/local/include/ --with-gnutls-libs=/opt/local/lib/
+
+This is mainly because I dont need any of the disabled features to get ruburple running, and the configure script had big trouble finding the gnutls headers and libs on its own. Also, the CFLAGS are because for some reason configure couldnt find my gettext header files...
+
+!!!NOTE!!! You wont be able to use MSN and some other protocols unless your build finds an SSL library, like gnutls above!
+
+To make sure that you have found an SSL library, just look at the results of the ./configure command.
+
+== Usage example:
+
+This example uses some methods defined in the ruburple gem. For a few other methods look at the test/ruburple_test.rb.
+
+ require 'ruburple'
+ require 'monitor'
+ signed_on_lock = Monitor.new
+ signed_on_flag = MonitorMixin::ConditionVariable.new(signed_on_lock)
+ Ruburple::init
+ Ruburple::subscribe(:received_im_msg) do |a,b,c,d,e| puts "rcv im: #{a}, #{b}, #{c}, #{d}, #{e}" end
+ Ruburple::subscribe(:signed_on) do |c| 
+        puts "signed on: #{c}" 
+	signed_on_lock.synchronize do
+          signed_on_flag.broadcast   
+        end
+      end
+ p = Ruburple::get_protocol("XMPP")
+ puts "gonna connect to #{p.id}, #{p.name}, #{p.version}, #{p.summary}, #{p.description}, #{p.author}, #{p.homepage}"
+ a = p.get_account("blabahtest1@gmail.com", "blabah1")
+ a.connect
+ signed_on_lock.synchronize do
+        signed_on_flag.wait
+      end
+ a.connection.send_im("zondolfin@gmail.com", "some message")
+ a.connection.close
+
+== It doesnt work!
+
+Do
+ Ruburple::debug = true
+and mail me a description of the problem, and Ill see what I can do. Warning: ruburple will be extremely chatty (pun intended) when you do this.

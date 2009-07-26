@@ -1,0 +1,6 @@
+ext/Makefile
+ext/*.log
+ext/*.so
+ext/*.bundle
+ext/*.dll
+ext/*.o
