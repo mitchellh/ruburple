@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
     s.platform  =   Gem::Platform::RUBY
     s.name      =   "ruburple"
-    s.version   =   "0.0.8"
+    s.version   =   "0.0.8.1"
     s.author    =   "Martin Kihlgren"
     s.email     =   "zond at troja dot ath dot cx"
     s.summary   =   "An ruby extension to libpurple."
